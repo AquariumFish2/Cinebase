@@ -1,13 +1,11 @@
-import { useContext, useEffect, useState } from "react"
-import type { Movie, Genre } from "../../utils/interfaces";
+import { useEffect, useState } from "react"
+import type { Movie } from "../../utils/interfaces";
 import MovieListing from "../../components/MovieListing";
 import Pagination from "../../components/Pagination";
 import { useNavigate, useParams } from "react-router";
-import { moviesContext } from "../../controllers/MoviesController";
 
 function TopRated() {
     const [movies, setMovies] = useState<Movie[]>([])
-    const {genres} = useContext(moviesContext)!
     const [loading, setLoading] = useState(true);
 
     let pageNum = parseInt(useParams()['pageNum'] || '1')
@@ -19,7 +17,6 @@ function TopRated() {
     const [totalPages, setTotalPages] = useState(500);
 
     const _baseUrl = "https://api.themoviedb.org/3/movie/top_rated";
-    const _apiKey = "e062cfaef0e16f44bda83a6fc3f68a8f";
 
     const options = {
         method: 'GET',

@@ -5,7 +5,7 @@ interface MediaActionsProps {
   mediaType: string;
 }
 
-export default function MediaActions({ isFav, onToggleFavorite, userLoggedIn, mediaType }: MediaActionsProps) {
+export default function MediaActions({ isFav, onToggleFavorite, userLoggedIn }: MediaActionsProps) {
   return (
     <div className="flex flex-wrap gap-6 text-white">
       <button

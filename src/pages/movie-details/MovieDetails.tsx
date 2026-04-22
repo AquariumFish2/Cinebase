@@ -3,7 +3,7 @@ import { authContext } from "../../controllers/AuthController";
 import { useNotification } from "../../controllers/NotificationController";
 import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import type { FavoriteType, Movie } from "../../utils/interfaces";
 
 import MediaHero from "./components/MediaHero";
@@ -25,7 +25,6 @@ export default function MovieDetails() {
   const { isFavorite, addFavorite, removeFavorite } = useContext(favoritesContext)!;
   const { user } = useContext(authContext)!;
 
-  const _imageBaseUrl = "https://image.tmdb.org/t/p/original/";
   const _apiKey = "e062cfaef0e16f44bda83a6fc3f68a8f";
 
   // Determine media type from URL path

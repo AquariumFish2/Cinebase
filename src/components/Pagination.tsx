@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 
-export default function Pagination({ pageNumber, maxPages, onPageChange }) {
+export default function Pagination({ pageNumber, maxPages, onPageChange }:{pageNumber:number,maxPages:number,onPageChange:any}) {
 
     const getPageNumbers = useCallback(() => {
         const pages:number[] = [];

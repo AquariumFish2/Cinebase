@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { motion } from "framer-motion";
 import { favoritesContext } from "../../controllers/FavoritesController";
 import { authContext } from "../../controllers/AuthController";
@@ -19,7 +19,6 @@ interface CompanyDetail {
 
 export default function CompanyDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [company, setCompany] = useState<CompanyDetail | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);

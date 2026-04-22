@@ -19,7 +19,7 @@ export default function Cursor() {
   return (
     <motion.div
       style={{ x: cursorX, y: cursorY }}
-      className="fixed top-0 left-0 w-20 h-20 rounded-full border-2 border-primary pointer-events-none z-[9999] mix-blend-difference hidden md:block"
+      className="fixed top-0 left-0 w-20 h-20 rounded-full border-2 border-primary pointer-events-none z-9999 mix-blend-difference hidden md:block"
     >
       <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
     </motion.div>

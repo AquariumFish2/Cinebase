@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { supabase } from "../supabase";
-import { type User, type Session } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 
 export interface AuthResponse {
     success: boolean;

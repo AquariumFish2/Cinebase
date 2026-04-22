@@ -4,7 +4,7 @@ export default function MovieCard(movie: Movie) {
   const _imageBaseUrl = "https://image.tmdb.org/t/p/w500/";
   
   return (
-    <div className="w-full aspect-[2/3] rounded-2xl relative group overflow-hidden border border-white/5 hover:border-primary/50 transition-all duration-500 shadow-xl hover:shadow-primary/20">
+    <div className="w-full aspect-2/3 rounded-2xl relative group overflow-hidden border border-white/5 hover:border-primary/50 transition-all duration-500 shadow-xl hover:shadow-primary/20">
         <img 
           className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110" 
           src={`${_imageBaseUrl + movie.poster_path}`} 

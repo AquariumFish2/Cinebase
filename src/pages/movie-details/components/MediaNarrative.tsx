@@ -8,7 +8,7 @@ export default function MediaNarrative({ overview, genres }: MediaNarrativeProps
     <>
       <div className="mb-12">
         <h3 className="text-primary uppercase tracking-[0.4em] font-black text-xs mb-6 flex items-center gap-4">
-          The Narrative <div className="h-[1px] flex-1 bg-primary/20" />
+          The Narrative <div className="h-px flex-1 bg-primary/20" />
         </h3>
         <p className="text-xl text-white/80 leading-relaxed font-light">
           {overview}
@@ -17,7 +17,7 @@ export default function MediaNarrative({ overview, genres }: MediaNarrativeProps
 
       <div className="mb-12">
         <h3 className="text-primary uppercase tracking-[0.4em] font-black text-xs mb-6 flex items-center gap-4">
-          Categories <div className="h-[1px] flex-1 bg-primary/20" />
+          Categories <div className="h-px flex-1 bg-primary/20" />
         </h3>
         <div className="flex gap-4 flex-wrap">
           {genres?.map((g: any) => (

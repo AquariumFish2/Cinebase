@@ -49,7 +49,7 @@ export function FavoritesController({ children }: { children: React.ReactNode })
   };
 
   const isFavorite = (id: number, type: FavoriteType) => {
-    return favorites.some(f => Number(f.favorite_id) === Number(id) && f.type === type);
+    return favorites.some(f =>f.favorite_id === id && f.type === type);
   };
 
   const addFavorite = async (item: { 

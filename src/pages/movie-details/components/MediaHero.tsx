@@ -5,7 +5,7 @@ interface MediaHeroProps {
   mediaType: 'movie' | 'tv';
 }
 
-export default function MediaHero({ movie, mediaType }: MediaHeroProps) {
+export default function MediaHero({ movie }: MediaHeroProps) {
   const year = (movie.release_date || movie.first_air_date)?.split('-')[0] || 'N/A';
   const runtime = movie.runtime || movie.episode_run_time?.[0] || 'N/A';
   const rating = movie.vote_average?.toFixed(1) || "0.0";

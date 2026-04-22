@@ -1,5 +1,3 @@
-import type { Dispatch, SetStateAction, SubmitEventHandler } from "react";
-
 export interface Movie {
   id: number;
   title: string;
@@ -36,9 +34,10 @@ export interface Profile {
   favorites_count?: number;
 }
 
-export type FavoriteType = 'movie' | 'tv' | 'company' | 'cast';
+export type FavoriteType = 'movie' | 'company' | 'cast';
 
 export interface Favorite {
+  vote_average: any;
   id: string;
   user_id: string;
   type: FavoriteType;
@@ -46,6 +45,5 @@ export interface Favorite {
   poster_path: string;
   title: string;
   overview: string;
-  vote_average?: number;
 }
 

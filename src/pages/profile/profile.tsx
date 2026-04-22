@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { authContext } from "../../controllers/AuthController";
 import { useNotification } from "../../controllers/NotificationController";
 import { useNavigate } from "react-router";
@@ -17,7 +16,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const [verifying, setVerifying] = useState(false);
   const [dbProfile, setDbProfile] = useState<UserProfileType | null>(null);
-  const [loadingData, setLoadingData] = useState(false);
+  const [_, setLoadingData] = useState(false);
   
   const { user, signOut } = useContext(authContext)!;
   const { favorites, removeFavorite } = useContext(favoritesContext)!;

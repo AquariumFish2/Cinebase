@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router";
-import { motion, AnimatePresence } from "framer-motion";
+import { useParams } from "react-router";
+import { motion } from "framer-motion";
 import { favoritesContext } from "../../controllers/FavoritesController";
 import { authContext } from "../../controllers/AuthController";
 import { useNotification } from "../../controllers/NotificationController";
@@ -19,7 +19,6 @@ interface PersonDetail {
 
 export default function CastDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [person, setPerson] = useState<PersonDetail | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [visibleCount, setVisibleCount] = useState(8);
@@ -111,7 +110,7 @@ export default function CastDetails() {
             animate={{ opacity: 1, scale: 1 }}
             className="w-full lg:w-96 shrink-0 flex justify-center"
           >
-            <div className="w-64 h-64 lg:w-full lg:h-auto aspect-square lg:aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)]">
+            <div className="w-64 h-64 lg:w-full lg:h-auto aspect-square lg:aspect-3/4 rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)]">
               {person.profile_path ? (
                 <img src={`https://image.tmdb.org/t/p/w500/${person.profile_path}`} className="w-full h-full object-cover" alt={person.name} />
               ) : (
@@ -144,7 +143,7 @@ export default function CastDetails() {
 
             <div className="mb-12">
               <h3 className="text-primary uppercase tracking-[0.4em] font-black text-xs mb-6 flex items-center gap-4">
-                Biography <div className="h-[1px] flex-1 bg-primary/20" />
+                Biography <div className="h-px flex-1 bg-primary/20" />
               </h3>
               <p className="text-lg text-white/70 leading-relaxed font-light max-w-3xl whitespace-pre-line italic">
                 {person.biography || "No biological intel available in the archive."}

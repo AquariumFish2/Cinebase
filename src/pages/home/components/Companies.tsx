@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { favoritesContext } from "../../../controllers/FavoritesController";
@@ -29,8 +29,7 @@ const POPULAR_COMPANIES = [
 
 export default function Companies() {
   const [companies, setCompanies] = useState<Company[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isPaused, setIsPaused] = useState(false);
+  const [_, setIsPaused] = useState(false);
   const navigate = useNavigate();
   const _apiKey = "e062cfaef0e16f44bda83a6fc3f68a8f";
 
