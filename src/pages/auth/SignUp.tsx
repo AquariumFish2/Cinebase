@@ -53,6 +53,7 @@ export default function SignUp() {
       }
     } catch (error) {
       setErrors([{ field: "form", message: "An unexpected error occurred" }]);
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -110,11 +111,10 @@ export default function SignUp() {
                   setUserName(e.target.value);
                 }}
                 placeholder="Enter your username"
-                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${
-                  getFieldError("username")
-                    ? "border-red-500/50 focus:border-red-500"
-                    : "border-white/10 focus:border-primary"
-                }`}
+                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${getFieldError("username")
+                  ? "border-red-500/50 focus:border-red-500"
+                  : "border-white/10 focus:border-primary"
+                  }`}
                 required
               />
               {getFieldError("username") && (
@@ -134,11 +134,10 @@ export default function SignUp() {
                   setEmail(e.target.value);
                 }}
                 placeholder="Enter your Email"
-                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${
-                  getFieldError("email")
-                    ? "border-red-500/50 focus:border-red-500"
-                    : "border-white/10 focus:border-primary"
-                }`}
+                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${getFieldError("email")
+                  ? "border-red-500/50 focus:border-red-500"
+                  : "border-white/10 focus:border-primary"
+                  }`}
                 required
               />
               {getFieldError("email") && (
@@ -158,11 +157,10 @@ export default function SignUp() {
                   setPassword(e.target.value);
                 }}
                 placeholder="••••••••"
-                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${
-                  getFieldError("password")
-                    ? "border-red-500/50 focus:border-red-500"
-                    : "border-white/10 focus:border-primary"
-                }`}
+                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${getFieldError("password")
+                  ? "border-red-500/50 focus:border-red-500"
+                  : "border-white/10 focus:border-primary"
+                  }`}
                 required
               />
               {getFieldError("password") && (
@@ -182,11 +180,10 @@ export default function SignUp() {
                   setConfirmPassword(e.target.value);
                 }}
                 placeholder="••••••••"
-                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${
-                  getFieldError("confirmPassword")
-                    ? "border-red-500/50 focus:border-red-500"
-                    : "border-white/10 focus:border-primary"
-                }`}
+                className={`bg-white/5 border rounded-xl px-4 py-4 focus:bg-white/10 focus:outline-none transition-all duration-300 ${getFieldError("confirmPassword")
+                  ? "border-red-500/50 focus:border-red-500"
+                  : "border-white/10 focus:border-primary"
+                  }`}
                 required
               />
               {getFieldError("confirmPassword") && (

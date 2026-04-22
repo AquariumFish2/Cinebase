@@ -3,7 +3,7 @@ import { authContext } from "../../controllers/AuthController";
 import { useNotification } from "../../controllers/NotificationController";
 import { useNavigate } from "react-router";
 import { supabase } from "../../supabase";
-import type { Profile as UserProfileType } from "../../utils/interfaces";
+import type { FavoriteType, Profile as UserProfileType } from "../../utils/interfaces";
 import { favoritesContext } from "../../controllers/FavoritesController";
 
 // Sub-components
@@ -11,13 +11,14 @@ import ProfileHeader from "./components/ProfileHeader";
 import FavoriteMedia from "./components/FavoriteMedia";
 import FavoriteCompanies from "./components/FavoriteCompanies";
 import TopTalent from "./components/TopTalent";
+import type { EmailOtpType } from "@supabase/supabase-js";
 
 export default function Profile() {
   const navigate = useNavigate();
   const [verifying, setVerifying] = useState(false);
   const [dbProfile, setDbProfile] = useState<UserProfileType | null>(null);
-  const [_, setLoadingData] = useState(false);
-  
+  const [loadingData, setLoadingData] = useState(false);
+
   const { user, signOut } = useContext(authContext)!;
   const { favorites, removeFavorite } = useContext(favoritesContext)!;
   const { showNotification } = useNotification();
@@ -32,12 +33,12 @@ export default function Profile() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token_hash = params.get('token_hash');
-    const type = params.get('type') as any;
+    const type = params.get('type') as EmailOtpType;
 
     if (token_hash) {
       setVerifying(true);
       supabase.auth
-        .verifyOtp({ token_hash, type: type || 'email' })
+        .verifyOtp({ token_hash, type: type })
         .then(({ error }) => {
           if (!error) {
             window.history.replaceState({}, document.title, '/profile');
@@ -65,7 +66,7 @@ export default function Profile() {
   };
 
 
-  const handleRemove = async (id: number, type: any) => {
+  const handleRemove = async (id: number, type: FavoriteType) => {
     await removeFavorite(id, type);
     showNotification(`Removed from collection`, 'error');
   };
@@ -82,6 +83,11 @@ export default function Profile() {
     }
   }, [user, navigate]);
 
+  if (loadingData)
+    return <div className="h-dvh w-full bg-bg-color flex flex-col justify-center items-center">
+      <p className="text-primary tracking-wider ">Loading Archive....</p>
+    </div>
+
   if (verifying || user === undefined) {
     return (
       <div className="bg-bg-color min-h-screen pt-32 pb-20 px-6 text-white flex flex-col items-center justify-center">
@@ -97,7 +103,7 @@ export default function Profile() {
     <div className="bg-bg-color min-h-screen pt-32 pb-20 px-6 text-white overflow-hidden">
 
       <div className="max-w-6xl mx-auto">
-        <ProfileHeader 
+        <ProfileHeader
           dbProfile={dbProfile}
           userMetadata={user.user_metadata}
           counts={{

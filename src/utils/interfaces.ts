@@ -9,7 +9,7 @@ export interface Movie {
   runtime?: number;
   genres: { id: number; name: string }[];
   tagline: string;
-  release_date: String;
+  release_date: string;
 }
 
 export interface Genre {
@@ -37,7 +37,7 @@ export interface Profile {
 export type FavoriteType = 'movie' | 'company' | 'cast';
 
 export interface Favorite {
-  vote_average: any;
+  vote_average: number|null;
   id: string;
   user_id: string;
   type: FavoriteType;
