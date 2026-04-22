@@ -1,51 +1,27 @@
-import { useEffect, useState } from "react"
-import type { Movie, Genre } from "../../utils/interfaces";
+import { useContext } from "react"
 import MovieListing from "../../components/MovieListing";
 import Pagination from "../../components/Pagination";
 import { useNavigate, useParams } from "react-router";
 import Hero from "./components/Hero";
+import Companies from "./components/Companies";
+import { moviesContext } from "../../controllers/MoviesController";
 
 function Home() {
 
-    const [movies, setMovies] = useState<{ movies: Movie[] }>({ movies: [] })
-    const [genres, setGenres] = useState<{ genres: Genre[] }>({ genres: [] })
+    const navigate = useNavigate()
+    const { movies, page, setPage } = useContext(moviesContext)!;
 
-    let pageNum = parseInt(useParams()['pageNum'])
-    if(pageNum > 500) pageNum = 500
-    console.log(pageNum)
-
-    const navigate = useNavigate();
-
-    const _baseUrl = "https://api.themoviedb.org/3/movie/";
-    const _apiKey = "e062cfaef0e16f44bda83a6fc3f68a8f";
-
-    const [page, setPage] = useState(pageNum || 1);
-
-    // Movies List
-    useEffect(() => {
-
-        fetch(`${_baseUrl}popular?api_key=${_apiKey}&language=en-US&page=${page}`)
-            .then(response => response.json())
-            .then(data => {
-                setMovies({ movies: data.results });
-                // To get Genres after movies are loaded
-                fetch("https://api.themoviedb.org/3/genre/movie/list?api_key=e062cfaef0e16f44bda83a6fc3f68a8f&language=en-US")
-                    .then(response => response.json())
-                    .then(data => {
-                        setGenres({ genres: data.genres });
-                    });
-            }).catch((e) => console.log(e));
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    }, [page])
-
+    const { pageNum } = useParams()
+    setPage(parseInt(pageNum || '1'));
     return <div className="flex flex-col items-center ">
+        <div className="h-20"></div>
         <Hero></Hero>
-        {movies.movies.length > 0 && <MovieListing movies={movies.movies}></MovieListing>}
-        <Pagination pageNumber={page} maxPages={500} onPageChange={(newPage) => {
-            navigate('/home/'+newPage)
+        <Companies></Companies>
+        {movies.length > 0 && <MovieListing movies={movies} forcedType="movie" />}
+        <Pagination pageNumber={page} maxPages={500} onPageChange={(newPage: number) => {
+            navigate('/home/' + newPage)
             setPage(newPage)
-            }}></Pagination>
+        }}></Pagination>
     </div>
 }
 

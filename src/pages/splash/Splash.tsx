@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 function Splash() {
-    const loadingQuotes: Array<string> = ["Initializing Curator",
+    const loadingQuotes: Array<string> = [
+        "Initializing Curator",
         "Summoning the Archive",
         "Curating Your Cinema Universe",
         "Loading Film Intelligence",
         "Assembling the Watchlist",
-        "Scanning the Movie Database"];
+        "Scanning the Movie Database"
+    ];
+    
     const [loadingText, setLoadingText] = useState(0);
 
     const navigate = useNavigate()

@@ -1,39 +1,123 @@
+import { useContext, useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { authContext } from "../../controllers/AuthController";
+import { useNotification } from "../../controllers/NotificationController";
+import { useNavigate } from "react-router";
+import { supabase } from "../../supabase";
+import type { Profile as UserProfileType } from "../../utils/interfaces";
+import { favoritesContext } from "../../controllers/FavoritesController";
+
+// Sub-components
+import ProfileHeader from "./components/ProfileHeader";
+import FavoriteMedia from "./components/FavoriteMedia";
+import FavoriteCompanies from "./components/FavoriteCompanies";
+import TopTalent from "./components/TopTalent";
+
 export default function Profile() {
+  const navigate = useNavigate();
+  const [verifying, setVerifying] = useState(false);
+  const [dbProfile, setDbProfile] = useState<UserProfileType | null>(null);
+  const [loadingData, setLoadingData] = useState(false);
+  
+  const { user, signOut } = useContext(authContext)!;
+  const { favorites, removeFavorite } = useContext(favoritesContext)!;
+  const { showNotification } = useNotification();
+
+  useEffect(() => {
+    if (user) {
+      fetchProfileData();
+    }
+  }, [user]);
+
+  // Handle email verification from OTP tokens in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token_hash = params.get('token_hash');
+    const type = params.get('type') as any;
+
+    if (token_hash) {
+      setVerifying(true);
+      supabase.auth
+        .verifyOtp({ token_hash, type: type || 'email' })
+        .then(({ error }) => {
+          if (!error) {
+            window.history.replaceState({}, document.title, '/profile');
+          }
+        })
+        .finally(() => setVerifying(false));
+    }
+  }, []);
+
+  const fetchProfileData = async () => {
+    setLoadingData(true);
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (data) setDbProfile(data);
+    } catch (err) {
+      console.error("Profile fetch error:", err);
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+
+  const handleRemove = async (id: number, type: any) => {
+    await removeFavorite(id, type);
+    showNotification(`Removed from collection`, 'error');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/sign-in");
+  };
+
+  // Automatic redirection for unauthenticated users
+  useEffect(() => {
+    if (user === null) {
+      navigate("/sign-up");
+    }
+  }, [user, navigate]);
+
+  if (verifying || user === undefined) {
+    return (
+      <div className="bg-bg-color min-h-screen pt-32 pb-20 px-6 text-white flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-8"></div>
+        <h1 className="text-2xl font-bold text-primary italic uppercase tracking-[0.5em]">Verifying Identity...</h1>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
   return (
-    <div className="bg-bg-color min-h-screen pt-40 px-6 text-white flex justify-center">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-8 border-b border-white/10 pb-4">Account Settings</h1>
-        
-        <form className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="username" className="text-sm font-medium text-white/60 uppercase tracking-wider">
-              Username
-            </label>
-            <input 
-              type="text" 
-              id="username" 
-              placeholder="Enter your username"
-              className="bg-white/5 border border-white/10 rounded-md px-4 py-3 focus:border-primary focus:outline-none transition-colors"
-            />
+    <div className="bg-bg-color min-h-screen pt-32 pb-20 px-6 text-white overflow-hidden">
+
+      <div className="max-w-6xl mx-auto">
+        <ProfileHeader 
+          dbProfile={dbProfile}
+          userMetadata={user.user_metadata}
+          counts={{
+            movies: favorites.filter(f => f.type === 'movie').length,
+            companies: favorites.filter(f => f.type === 'company').length,
+            cast: favorites.filter(f => f.type === 'cast').length
+          }}
+          onSignOut={handleSignOut}
+        />
+
+        <div className="space-y-32">
+          <FavoriteMedia title="CineBase Archive" favorites={favorites} type="movie" />
+          <FavoriteMedia title="Series Collection" favorites={favorites} type="tv" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
+            <FavoriteCompanies favorites={favorites} onRemove={handleRemove} />
+            <TopTalent favorites={favorites} onRemove={handleRemove} />
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="password" className="text-sm font-medium text-white/60 uppercase tracking-wider">
-              Password
-            </label>
-            <input 
-              type="password" 
-              id="password" 
-              placeholder="••••••••"
-              className="bg-white/5 border border-white/10 rounded-md px-4 py-3 focus:border-primary focus:outline-none transition-colors"
-            />
-          </div>
-          <button 
-            type="submit" 
-            className="mt-4 bg-primary text-bg-color font-bold py-3 rounded-md hover:opacity-90 transition-opacity cursor-pointer uppercase tracking-widest"
-          >
-            Sign In
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

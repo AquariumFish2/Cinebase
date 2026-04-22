@@ -3,26 +3,27 @@ import { useEffect, useState } from "react";
 import type { Movie } from "../../../utils/interfaces";
 import { Link } from "react-router";
 export default function Hero() {
-    const [movies, setMovies] = useState<Movie[]>([]);
+    const [trending, settrending] = useState<Movie[]>([]);
     const [index, setIndex] = useState(0);
+    
     const _imageBaseUrl = "https://image.tmdb.org/t/p/original/";
 
     useEffect(() => {
         fetch("https://api.themoviedb.org/3/trending/movie/day?api_key=e062cfaef0e16f44bda83a6fc3f68a8f")
             .then(res => res.json())
-            .then(data => setMovies(data.results.slice(0, 8)));
+            .then(data => settrending(data.results.slice(0, 8)));
     }, []);
 
     useEffect(() => {
-        if (movies.length === 0) return;
+        if (trending.length === 0) return;
         const interval = setInterval(() => {
-            setIndex((prev) => (prev + 1) % movies.length);
+            setIndex((prev) => (prev + 1) % trending.length);
         }, 8000);
         return () => clearInterval(interval);
-    }, [movies]);
+    }, [trending]);
 
-    if (movies.length === 0) return <div className="h-[80vh] bg-black/20 animate-pulse w-full" />;
-    const currentMovie = movies[index];
+    if (trending.length === 0) return <div className="h-[80vh] bg-black/20 animate-pulse w-full" />;
+    const currentMovie = trending[index];
     return (
         <section className="relative h-[85vh] w-full overflow-hidden flex items-center">
             <AnimatePresence mode="wait">
@@ -42,13 +43,11 @@ export default function Hero() {
                         className="w-full h-full object-cover"
                         alt={currentMovie.title}
                     />
-
-                    {/* Cinematic Overlays */}
                     <div className="absolute inset-0 bg-linear-to-r from-bg-color via-bg-color/40 to-transparent" />
                     <div className="absolute inset-0 bg-linear-to-t from-bg-color via-transparent to-transparent" />
                 </motion.div>
             </AnimatePresence>
-            {/* Content Container */}
+
             <div className="relative z-10 w-full px-12">
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -82,7 +81,7 @@ export default function Hero() {
                 </AnimatePresence>
             </div>
             <div className="absolute bottom-10 right-12 z-20 flex gap-3">
-                {movies.map((_, i) => (
+                {trending.map((_, i) => (
                     <button
                         key={i}
                         onClick={() => setIndex(i)}

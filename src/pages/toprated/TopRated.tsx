@@ -1,19 +1,21 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import type { Movie, Genre } from "../../utils/interfaces";
 import MovieListing from "../../components/MovieListing";
 import Pagination from "../../components/Pagination";
 import { useNavigate, useParams } from "react-router";
+import { moviesContext } from "../../controllers/MoviesController";
 
 function TopRated() {
-    const [movies, setMovies] = useState<{ movies: Movie[] }>({ movies: [] })
-    const [genres, setGenres] = useState<{ genres: Genre[] }>({ genres: [] })
+    const [movies, setMovies] = useState<Movie[]>([])
+    const {genres} = useContext(moviesContext)!
+    const [loading, setLoading] = useState(true);
 
-    let pageNum = parseInt(useParams()['pageNum'])
-    if(pageNum >= 500) pageNum = 500
-    console.log(pageNum)
+    let pageNum = parseInt(useParams()['pageNum'] || '1')
+    if (pageNum >= 500) pageNum = 500
+
     const navigate = useNavigate()
 
-    const [page, setPage] = useState(pageNum?pageNum:1);
+    const [page, setPage] = useState(pageNum ? pageNum : 1);
     const [totalPages, setTotalPages] = useState(500);
 
     const _baseUrl = "https://api.themoviedb.org/3/movie/top_rated";
@@ -28,34 +30,35 @@ function TopRated() {
     };
 
     useEffect(() => {
+        setLoading(true);
         fetch(`${_baseUrl}?language=en-US&page=${page}`, options)
             .then(res => res.json())
             .then(data => {
-                setMovies({ movies: data.results });
+                setMovies(data.results);
                 setTotalPages(data.total_pages > 500 ? 500 : data.total_pages);
-                
-                fetch("https://api.themoviedb.org/3/genre/movie/list?language=en-US", options)
-                    .then(response => response.json())
-                    .then(data => {
-                        setGenres({ genres: data.genres });
-                    });
+                setLoading(false);
             })
             .catch(err => console.error(err));
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [page]) // Listen for page changes
 
+    if(loading)
+        return<div className="h-dvh w-full bg-bg-color flex flex-col justify-center items-center">
+            <p className="text-primary tracking-wider ">Loading Archive....</p>
+        </div>
+
     return (
-        <div className="flex flex-col items-center">
-            {movies.movies.length > 0 && <MovieListing movies={movies.movies}></MovieListing>}
-            
-            <Pagination 
-                pageNumber={page} 
-                maxPages={totalPages} 
-                onPageChange={(newPage) => {
-                    navigate('/top-rated/'+newPage)
+        <div className="flex flex-col items-center pt-32">
+            {movies.length > 0 && <MovieListing movies={movies} forcedType="movie" />}
+
+            <Pagination
+                pageNumber={page}
+                maxPages={totalPages}
+                onPageChange={(newPage: number) => {
+                    navigate('/top-rated/' + newPage)
                     setPage(newPage)
-                }} 
+                }}
             />
         </div>
     )

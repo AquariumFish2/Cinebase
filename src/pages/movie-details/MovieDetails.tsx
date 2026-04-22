@@ -1,85 +1,136 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { motion } from "framer-motion";
-import type { Movie } from "../../utils/interfaces";
-export default function MovieDetails() {
+import { favoritesContext } from "../../controllers/FavoritesController";
+import { authContext } from "../../controllers/AuthController";
+import { useNotification } from "../../controllers/NotificationController";
+import { useContext, useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router";
+import { motion, AnimatePresence } from "framer-motion";
+import type { FavoriteType, Movie } from "../../utils/interfaces";
 
+import MediaHero from "./components/MediaHero";
+import MediaNarrative from "./components/MediaNarrative";
+import MediaActions from "./components/MediaActions";
+import MediaCast from "./components/MediaCast";
+import MediaCompanies from "./components/MediaCompanies";
+import MediaRecommendations from "./components/MediaRecommendations";
+
+export default function MovieDetails() {
   const { id } = useParams();
-  const [movie, setMovie] = useState<Movie | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [movie, setMovie] = useState<any | null>(null);
+  const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
+  const [cast, setCast] = useState<any[]>([]);
+  const { showNotification } = useNotification();
+
+  const { isFavorite, addFavorite, removeFavorite } = useContext(favoritesContext)!;
+  const { user } = useContext(authContext)!;
 
   const _imageBaseUrl = "https://image.tmdb.org/t/p/original/";
   const _apiKey = "e062cfaef0e16f44bda83a6fc3f68a8f";
 
+  // Determine media type from URL path
+  const mediaType = location.pathname.startsWith('/tv') ? 'tv' : 'movie';
+
   useEffect(() => {
-    fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${_apiKey}&language=en-US`)
-      .then((res) => res.json())
-      .then((data) => setMovie(data));
-  }, [id]);
+    const fetchAllData = async () => {
+      setMovie(null); // Reset state to show loading during transition
+      try {
+        const [movieRes, similarRes, creditsRes] = await Promise.all([
+          fetch(`https://api.themoviedb.org/3/${mediaType}/${id}?api_key=${_apiKey}&language=en-US`),
+          fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/similar?api_key=${_apiKey}&language=en-US`),
+          fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/credits?api_key=${_apiKey}&language=en-US`)
+        ]);
+
+        const movieData = await movieRes.json();
+        const similarData = await similarRes.json();
+        const creditsData = await creditsRes.json();
+
+        setMovie(movieData);
+        setSimilarMovies(similarData.results?.slice(0, 8) || []);
+        setCast(creditsData.cast?.slice(0, 10) || []);
+        
+        window.scrollTo(0, 0);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
+
+    fetchAllData();
+  }, [id, mediaType]);
+
+
+  const handleFavoriteToggle = async () => {
+    if (!movie) return;
+    
+    if (isFavorite(movie.id, mediaType as FavoriteType)) {
+      await removeFavorite(movie.id, mediaType as FavoriteType);
+      showNotification(`Removed ${mediaType} from archive`, "error");
+    } else {
+      const result = await addFavorite({
+        favorite_id: movie.id,
+        type: mediaType as FavoriteType,
+        title: movie.title || movie.name,
+        poster_path: movie.poster_path,
+        overview: movie.overview,
+        vote_average: movie.vote_average
+      });
+
+      if (result.success) {
+        showNotification(result.message || "Saved to archive", "success");
+      } else {
+        showNotification(result.message || "Failed to save", "error");
+      }
+    }
+  };
 
   if (!movie) return <div className="h-dvh w-full bg-bg-color flex items-center justify-center text-primary text-2xl animate-pulse uppercase tracking-[1em]">Scanning Archive...</div>;
+  
+  const isFav = isFavorite(movie.id, mediaType as FavoriteType);
+
   return (
-    <div className="min-h-screen bg-bg-color text-white relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-[60vh] z-0">
-        <img 
-            src={_imageBaseUrl + movie.backdrop_path} 
-            className="w-full h-full object-cover opacity-30" 
-            alt="backdrop" 
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-bg-color to-transparent" />
-      </div>
-      <div className="relative z-10 container mx-auto px-6 pt-32 flex flex-col md:flex-row gap-12">
+    <div className="min-h-screen bg-bg-color text-white relative overflow-hidden pb-20">
 
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full md:w-[400px] shrink-0"
-        >
-          <img 
-            src={_imageBaseUrl + movie.poster_path} 
-            className="w-full rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
-            alt={movie.title} 
+      {/* Cinematic Backdrop */}
+      {movie.backdrop_path && (
+        <div className="absolute top-0 left-0 w-full h-[70vh] z-0">
+          <img
+            src={`https://image.tmdb.org/t/p/original/${movie.backdrop_path}`}
+            className="w-full h-full object-cover opacity-40"
+            alt="backdrop"
           />
-        </motion.div>
+          <div className="absolute inset-0 bg-linear-to-t from-bg-color via-bg-color/40 to-transparent" />
+        </div>
+      )}
 
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex-1"
-        >
-          <h1 className="text-5xl md:text-7xl font-bold font-family-logo mb-2">{movie.title}</h1>
-          <p className="text-primary italic text-xl mb-6 tracking-wide">{movie.tagline}</p>
-          
-          <div className="flex flex-wrap gap-4 mb-8">
-            <span className="bg-white/5 border border-white/10 px-4 py-1 rounded-full text-sm">
-                {movie.release_date.split('-')[0]}
-            </span>
-            <span className="bg-white/5 border border-white/10 px-4 py-1 rounded-full text-sm">
-                {movie.runtime} MIN
-            </span>
-            <span className="bg-primary/20 border border-primary text-primary px-4 py-1 rounded-full text-sm font-bold">
-                {movie.vote_average.toFixed(1)} ⭐
-            </span>
+      <div className="relative z-10 container mx-auto px-6 pt-32 lg:pt-48">
+        <div className="flex flex-col lg:flex-row gap-16">
+          <div className="w-full lg:w-96 shrink-0 flex justify-center lg:block">
+            <motion.img
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
+              className="w-72 lg:w-full rounded-2xl shadow-[0_0_80px_rgba(0,0,0,0.8)] border border-white/10"
+              alt={movie.title || movie.name}
+            />
           </div>
-          <div className="mb-8">
-            <h3 className="text-primary uppercase tracking-[0.3em] font-bold text-sm mb-4">Storyline</h3>
-            <p className="text-lg text-white/70 leading-relaxed max-w-2xl">
-              {movie.overview}
-            </p>
+
+          <div className="flex-1">
+            <MediaHero movie={movie} mediaType={mediaType as any} />
+            <MediaNarrative overview={movie.overview} genres={movie.genres} />
+            <MediaActions 
+              isFav={isFav} 
+              onToggleFavorite={handleFavoriteToggle} 
+              userLoggedIn={!!user} 
+              mediaType={mediaType} 
+            />
           </div>
-          <div className="mb-10">
-            <h3 className="text-primary uppercase tracking-[0.3em] font-bold text-sm mb-4">Genres</h3>
-            <div className="flex gap-3 flex-wrap">
-              {movie.genres?.map(g => (
-                <span key={g.id} className="text-lg font-light py-1 px-3 border-l border-primary/40 bg-white/5">
-                  {g.name}
-                </span>
-              ))}
-            </div>
-          </div>
-          <button className="bg-white text-bg-color px-12 py-4 rounded-sm font-bold tracking-[0.2em] hover:bg-primary transition-all cursor-pointer duration-500">
-            WATCH NOW
-          </button>
-        </motion.div>
+        </div>
+
+        <div className="mt-32">
+          <MediaCast cast={cast} onNavigate={(cid) => navigate(`/cast/${cid}`)} />
+          <MediaCompanies companies={movie.production_companies} onNavigate={(coid) => navigate(`/company/${coid}`)} />
+          <MediaRecommendations items={similarMovies} mediaType={mediaType as any} />
+        </div>
       </div>
     </div>
   );

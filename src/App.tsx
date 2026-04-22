@@ -1,31 +1,87 @@
+import { createBrowserRouter, RouterProvider } from "react-router";
+import MoviesController from "./controllers/MoviesController";
+import { lazy } from "react";
+
+import Layout from "./pages/Layout";
 import Splash from "./pages/splash/Splash";
-import { BrowserRouter, Route, Routes } from "react-router";
 import Home from "./pages/home/Home";
-import AppBar from "./components/AppBar";
-import TopRated from "./pages/toprated/TopRated";
-import MovieDetails from "./pages/movie-details/MovieDetails";
-import Profile from "./pages/profile/profile";
+import { AuthController } from "./controllers/AuthController";
 
-function App(){
-  // setTimeout(() => {
-  //   setShowSplash(false);
-  // }, 1500)
-  
+const TopRated = lazy(() => import("./pages/toprated/TopRated"))
+const MovieDetails = lazy(() => import("./pages/movie-details/MovieDetails"))
+const CompanyDetails = lazy(() => import("./pages/company-details/CompanyDetails"))
+const CastDetails = lazy(() => import("./pages/cast-details/CastDetails"))
+const Profile = lazy(() => import("./pages/profile/profile"))
+const SignUp = lazy(() => import("./pages/auth/SignUp"))
+const SignIn = lazy(() => import("./pages/auth/SignIn"))
 
 
-  return <div className="w-full h-dvh bg-bg-color">
-    <BrowserRouter>
-      <AppBar></AppBar>
-      <Routes>
-        <Route path="/" element={<Splash/>}></Route>
-        <Route path="/home" element={<Home/>}></Route>
-        <Route path="/home/:pageNum" element={<Home/>}></Route>
-        <Route path="/top-rated" element={<TopRated/>}></Route>
-        <Route path="/top-rated/:pageNum" element={<TopRated/>}></Route>
-        <Route path="/movie/:id" element={<MovieDetails />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
-    </BrowserRouter>
+import { FavoritesController } from "./controllers/FavoritesController";
+import { NotificationProvider } from "./controllers/NotificationController";
+
+function App() {
+
+  const routes = createBrowserRouter(
+    [
+      { index: true, element: <Splash /> },
+      {
+        path: '/home', element: <Layout />,
+        children: [
+          { path: '/home', element: <Home /> },
+          { path: '/home/:pageNum', element: <Home /> }
+        ]
+      },
+      {
+        path: '/top-rated', element: <Layout />,
+        children: [
+          { path: '/top-rated', element: <TopRated /> },
+          { path: '/top-rated/:pageNum', element: <TopRated /> }
+        ]
+      },
+      {
+        path: '/profile', element: <Layout />, children: [
+          { path: '/profile', element: <Profile /> }
+        ]
+      },
+      {
+        path: '/sign-up', element: <Layout />, children: [
+          { path: '/sign-up', element: <SignUp /> }
+        ]
+      },
+      {
+        path: '/sign-in', element: <Layout />, children: [
+          { path: '/sign-in', element: <SignIn /> }
+        ]
+      },
+      {
+        element: <Layout />, children: [
+          { path: '/movie/:id', element: <MovieDetails /> },
+          { path: '/tv/:id', element: <MovieDetails /> }
+        ]
+      },
+      {
+        path: '/company', element: <Layout />, children: [
+          { path: '/company/:id', element: <CompanyDetails /> }
+        ]
+      },
+      {
+        path: '/cast', element: <Layout />, children: [
+          { path: '/cast/:id', element: <CastDetails /> }
+        ]
+      }
+    ]
+  )
+
+  return <div className="w-full h-full bg-bg-color">
+    <NotificationProvider>
+      <AuthController>
+        <FavoritesController>
+          <MoviesController>
+            <RouterProvider router={routes}></RouterProvider>
+          </MoviesController>
+        </FavoritesController>
+      </AuthController>
+    </NotificationProvider>
   </div>
 }
 
